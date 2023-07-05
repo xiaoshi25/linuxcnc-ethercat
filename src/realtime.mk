@@ -1,6 +1,8 @@
 include ../config.mk
 include Kbuild
 
+TARGET := lcec.so
+
 include $(MODINC)
 
 ifeq ($(BUILDSYS),kbuild)
@@ -13,12 +15,14 @@ endif
 
 all:
 	$(MAKE) EXTRA_CFLAGS="$(EXTRA_CFLAGS)" KBUILD_EXTRA_SYMBOLS="$(RTLIBDIR)/Module.symvers $(RTAIDIR)/modules/ethercat/Module.symvers" -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
-
+	echo $EXTRA_CFLAGS
 else
 
-LDFLAGS += -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal -lethercat
+all: $(TARGET)
 
-all: modules
+$(TARGET):$(lcec-objs)
+	$(ECHO) Linking $@
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ $^ -lethercat -lm
 
 endif
 
